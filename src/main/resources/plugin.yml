@@ -1,0 +1,34 @@
+name: TeleportationCommands
+version: '${project.version}'
+main: okey_boomer.teleportationcommands.TeleportationCommands
+api-version: 1.18
+commands:
+  spawn:
+    description: Teleports the player to the world spawn
+    usage: /spawn
+    aliases: [s]
+  tpa:
+    description: Teleports the player to the given coordinate
+    usage: /tpa otherUser
+  tpaccept:
+    description: Accepts another player's teleport request
+    usage: /tpaccept otherUser
+  tpdecline:
+    description: Declines another player's teleport request
+    usage: /tpdecline otherUser
+  setWarp:
+    description: Sets a new warp location
+    usage: /setwarp warpName
+    permission: warpOp
+  warp:
+    description: Teleports the player toi a specified location
+    usage: /warp warpName
+  warps:
+    description: Lists all warp locations
+    usage: /warps
+  deleteWarp:
+    description: Removes warp with the given name
+    usage: /deleteWarp warpName
+    aliases: [delWarp]
+    permission: warpOp
+
