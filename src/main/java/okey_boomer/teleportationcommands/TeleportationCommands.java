@@ -23,6 +23,10 @@ public final class TeleportationCommands extends JavaPlugin {
         SetWarp setWarp = new SetWarp();
         Warp warp = new Warp();
         DeleteWarp deleteWarp = new DeleteWarp();
+        Warps warpsCommand = new Warps();
+        Home home = new Home();
+        SetHome setHome = new SetHome();
+        DeleteHome deleteHome = new DeleteHome();
         File activeTeleportations = new File("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat");
         if (!activeTeleportations.exists()) {
             try {
@@ -54,6 +58,10 @@ public final class TeleportationCommands extends JavaPlugin {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+        File homesDir = new File("plugins" + separator + "TeleportationCommands" + separator + "homes");
+        if (!homesDir.exists()) {
+            homesDir.mkdir();
+        }
         this.getCommand("spawn").setExecutor(s);
         this.getCommand("tpa").setExecutor(t);
         this.getCommand("tpaccept").setExecutor(tpAccept);
@@ -61,6 +69,10 @@ public final class TeleportationCommands extends JavaPlugin {
         this.getCommand("setWarp").setExecutor(setWarp);
         this.getCommand("warp").setExecutor(warp);
         this.getCommand("deleteWarp").setExecutor(deleteWarp);
+        this.getCommand("warps").setExecutor(warpsCommand);
+        this.getCommand("home").setExecutor(home);
+        this.getCommand("setHome").setExecutor(setHome);
+        this.getCommand("deleteHome").setExecutor(deleteHome);
     }
 
     @Override

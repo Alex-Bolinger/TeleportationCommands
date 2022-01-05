@@ -29,6 +29,14 @@ commands:
   deleteWarp:
     description: Removes warp with the given name
     usage: /deleteWarp warpName
-    aliases: [delWarp]
     permission: warpOp
+  setHome:
+    description: Sets the player's home to their current location
+    usage: /setHome
+  home:
+    description: Teleports the player to their home
+    usage: /home
+  deleteHome:
+    description: Removes the player's home
+    usage: /deleteHome
 

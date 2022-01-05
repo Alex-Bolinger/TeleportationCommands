@@ -28,10 +28,12 @@ public class TPDecline implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player p = (Player) sender;
         World w = p.getWorld();
+        Player otherPlayer = null;
         boolean found = false;
         for (Player player : w.getPlayers()) {
             if (player.getName().equals(args[0])) {
                 found = true;
+                otherPlayer = player;
             }
         }
         if (!found) {
@@ -64,6 +66,7 @@ public class TPDecline implements CommandExecutor {
             bfw.flush();
             bfw.close();
             p.sendMessage("Declined " + args[0] + "'s teleport request");
+            otherPlayer.sendMessage(p.getName() + " declined your teleport request");
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

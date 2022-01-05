@@ -8,18 +8,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Teleport implements CommandExecutor {
     private final Plugin plugin;
-
-    private final Counter counter;
-
-    private Timer timer;
 
     private String separator;
 
@@ -29,7 +22,6 @@ public class Teleport implements CommandExecutor {
 
     public Teleport(Plugin plugin) {
         this.plugin = plugin;
-        counter = new Counter();
         if (System.getProperty("os.name").startsWith("Windows")) {
             separator = "\\";
         } else {
@@ -43,10 +35,11 @@ public class Teleport implements CommandExecutor {
         if (sender instanceof Player) {
             Player p = (Player) sender;
             World w = p.getWorld();
-
+            otherPlayer = null;
             boolean found = false;
             for (Player player : w.getPlayers()) {
                 if (player.getName().equals(args[0])) {
+                    otherPlayer = player;
                     found = true;
                 }
             }
@@ -58,7 +51,8 @@ public class Teleport implements CommandExecutor {
                 String line = bfr.readLine();
                 while (line != null) {
                     if (line.substring(0, line.indexOf(",")).equals(p.getName())
-                            && line.substring(line.indexOf(",") + 2, line.lastIndexOf(",")).equals(args[0])) {
+                            && line.substring(line.indexOf(",") + 2, line.lastIndexOf(",")).equals(args[0])
+                            && line.substring(line.lastIndexOf(",") + 2).equals("false")) {
                         return false;
                     } else {
                         line = bfr.readLine();
@@ -71,85 +65,21 @@ public class Teleport implements CommandExecutor {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-            timer = new Timer(100, new AbstractAction() {
+            p.sendMessage("Sent " + args[0] + " a teleport request");
+            otherPlayer.sendMessage(p.getName() + " sent you a teleport request");
+            p.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void run() {
                     try {
-                        if (counter.getCounter() <= 600) {
-                            counter.increment();
-                            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
-                            ArrayList<String> data = new ArrayList<>();
-                            String line = bfr.readLine();
-                            while (line != null) {
-                                data.add(line);
-                                line = bfr.readLine();
-                            }
-                            bfr.close();
-                            boolean removed = false;
-                            boolean accepted = false;
-                            for (int i = 0; i < data.size(); i++) {
-                                if (data.get(i).substring(0, data.get(i).indexOf(",")).equals(p.getName())) {
-                                    String other = data.get(i).substring(data.get(i).indexOf(",") + 2, data.get(i).lastIndexOf(","));
-                                    if (other.equals(args[0])) {
-                                        if (data.get(i).substring(data.get(i).lastIndexOf(",") + 2).equals("accepted")) {
-                                            removed = true;
-                                            accepted = true;
-                                            data.remove(i);
-                                            break;
-                                        } else if (data.get(i).substring(data.get(i).lastIndexOf(",") + 2).equals("declined")) {
-                                            removed = true;
-                                            data.remove(i);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            if (removed) {
-                                BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
-                                String out = "";
-                                for (String s : data) {
-                                    out += s + "\n";
-                                }
-                                bfw.write(out);
-                                bfw.flush();
-                                bfw.close();
-                                List<Player> players = w.getPlayers();
-                                for (Player player : players) {
-                                    if (player.getName().equals(args[0])) {
-                                        if (accepted) {
-                                            otherPlayer = player;
-                                            ready = true;
-                                            p.sendMessage("Teleported Successfully!");
-                                        } else {
-                                            p.sendMessage("Teleport Request was Declined!");
-                                        }
-                                        break;
-                                    }
-                                }
-                                stopTimer();
-                            }
-                        } else {
-                            stopTimer();
-                            try {
-                                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
-                                ArrayList<String> data = new ArrayList<>();
-                                String line = bfr.readLine();
-                                while (line != null) {
-                                    data.add(line);
-                                    line = bfr.readLine();
-                                }
+                        BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
+                        ArrayList<String> data = new ArrayList<>();
+                        String line = bfr.readLine();
+                        while (line != null) {
+                            data.add(line);
+                            if (line.substring(0, line.indexOf(",")).equals(p.getName())
+                                    && line.substring(line.indexOf(",") + 2, line.lastIndexOf(",")).equals(args[0])) {
                                 bfr.close();
-                                for (int i = 0; i < data.size(); i++) {
-                                    if (data.get(i).substring(0, data.get(i).indexOf(",")).equals(p.getName())) {
-                                        String other = data.get(i).substring(data.get(i).indexOf(",") + 2, data.get(i).lastIndexOf(","));
-                                        if (other.equals(args[0])) {
-                                            if (data.get(i).substring(data.get(i).lastIndexOf(",") + 2).equals("accepted")) {
-                                                data.remove(i);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
+                                data.remove(data.size() - 1);
                                 BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
                                 String out = "";
                                 for (String s : data) {
@@ -158,45 +88,21 @@ public class Teleport implements CommandExecutor {
                                 bfw.write(out);
                                 bfw.flush();
                                 bfw.close();
-                            } catch (IOException ioe) {
-                                ioe.printStackTrace();
+                                if (line.substring(line.lastIndexOf(",") + 2).equals("false")) {
+                                    p.sendMessage("Teleport request to " + args[0] + " timed out");
+                                    otherPlayer.sendMessage("Teleport request from " + args[0] + " timed out");
+                                }
+                                break;
                             }
-                            p.sendMessage("Teleport Request Timed Out");
                         }
-                    } catch (IOException ioe){
+                    } catch (IOException ioe) {
                         ioe.printStackTrace();
                     }
                 }
-            });
-            timer.start();
-            while (!ready) {
-
-            }
-            if (ready) {
-                p.teleport(p.getLocation());
-            }
+            }, 1200);
             return true;
         }
         return false;
     }
 
-    public void stopTimer() {
-        timer.stop();
-    }
-
-    private class Counter {
-        private int counter;
-
-        public Counter() {
-            counter = 0;
-        }
-
-        public void increment() {
-            counter++;
-        }
-
-        public int getCounter() {
-            return counter;
-        }
-    }
 }

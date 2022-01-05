@@ -28,10 +28,12 @@ public class TPAccept implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player p = (Player) sender;
         World w = p.getWorld();
+        Player otherPlayer = null;
         boolean found = false;
         for (Player player : w.getPlayers()) {
             if (player.getName().equals(args[0])) {
                 found = true;
+                otherPlayer = player;
             }
         }
         if (!found) {
@@ -64,6 +66,8 @@ public class TPAccept implements CommandExecutor {
             bfw.flush();
             bfw.close();
             p.sendMessage("Accepted " + args[0] + "'s teleport request");
+            otherPlayer.teleport(p.getLocation());
+            otherPlayer.sendMessage(p.getName() + " accepted your teleport request");
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
