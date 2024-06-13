@@ -43,6 +43,9 @@ public class TPDecline implements CommandExecutor {
             BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
             ArrayList<String> data = new ArrayList<>();
             String line = bfr.readLine();
+            if (line == null) {
+                return true;
+            }
             while (line != null) {
                 data.add(line);
                 line = bfr.readLine();

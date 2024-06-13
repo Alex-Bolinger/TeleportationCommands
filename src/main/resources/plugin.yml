@@ -1,14 +1,14 @@
 name: TeleportationCommands
 version: '${project.version}'
 main: okey_boomer.teleportationcommands.TeleportationCommands
-api-version: 1.18
+api-version: 1.20.6
 commands:
   spawn:
     description: Teleports the player to the world spawn
     usage: /spawn
     aliases: [s]
   tpa:
-    description: Teleports the player to the given coordinate
+    description: Teleports the player to another user
     usage: /tpa otherUser
   tpaccept:
     description: Accepts another player's teleport request
@@ -21,7 +21,7 @@ commands:
     usage: /setwarp warpName
     permission: warpOp
   warp:
-    description: Teleports the player toi a specified location
+    description: Teleports the player to a specified location
     usage: /warp warpName
   warps:
     description: Lists all warp locations
@@ -32,11 +32,14 @@ commands:
     permission: warpOp
   setHome:
     description: Sets the player's home to their current location
-    usage: /setHome
+    usage: /setHome homeName
   home:
     description: Teleports the player to their home
-    usage: /home
+    usage: /home homeName
+  homes:
+    description: Lists a player's homes
+    usage: /homes
   deleteHome:
     description: Removes the player's home
-    usage: /deleteHome
+    usage: /deleteHome homeName
 

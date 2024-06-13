@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+
 public class Warp implements CommandExecutor {
     private String separator;
 
@@ -25,6 +26,7 @@ public class Warp implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {
+
             BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "warps.dat"));
             boolean found = false;
             String line = bfr.readLine();
@@ -44,7 +46,7 @@ public class Warp implements CommandExecutor {
             Player p = (Player) sender;
             if (!found) {
                 p.sendMessage("Invalid Warp");
-                return false;
+                return true;
             }
             String coords = line.substring(line.indexOf(",") + 2);
             Location l = new Location(p.getWorld(), Double.parseDouble(coords.substring(0, coords.indexOf(" "))),
