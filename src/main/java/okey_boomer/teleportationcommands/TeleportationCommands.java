@@ -28,7 +28,14 @@ public final class TeleportationCommands extends JavaPlugin {
                 BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "warps.dat"));
                 String line = bfr.readLine();
                 while (line != null) {
-                    list.add(line.substring(0, line.indexOf(',')));
+                    String item = line.substring(0, line.indexOf(','));
+                    if (args.length != 0) {
+                        if (item.startsWith(args[0])) {
+                            list.add(line.substring(0, line.indexOf(',')));
+                        }
+                    } else {
+                        list.add(line.substring(0, line.indexOf(',')));
+                    }
                     line = bfr.readLine();
                 }
             } catch (IOException ioe) {
@@ -37,7 +44,13 @@ public final class TeleportationCommands extends JavaPlugin {
         } else if (command.getName().equals("tpa")) {
             for (Player player : w.getPlayers()) {
                 if (!p.equals(player)) {
-                    list.add(player.getName());
+                    if (args.length != 0) {
+                        if (player.getName().startsWith(args[0])) {
+                            list.add(player.getName());
+                        }
+                    } else {
+                        list.add(player.getName());
+                    }
                 }
             }
         } else if (command.getName().equals("home") || command.getName().equals("deleteHome")) {
@@ -47,7 +60,14 @@ public final class TeleportationCommands extends JavaPlugin {
                     BufferedReader bfr = new BufferedReader(new FileReader(home));
                     String line = bfr.readLine();
                     while (line != null) {
-                        list.add(line.substring(0, line.indexOf(' ')));
+                        String item = line.substring(0, line.indexOf(' '));
+                        if (args.length != 0) {
+                            if (item.startsWith(args[0])) {
+                                list.add(line.substring(0, line.indexOf(' ')));
+                            }
+                        } else {
+                            list.add(line.substring(0, line.indexOf(' ')));
+                        }
                         line = bfr.readLine();
                     }
                 } catch (IOException ioe) {
@@ -61,7 +81,13 @@ public final class TeleportationCommands extends JavaPlugin {
                 while (line != null) {
                     String[] parts = line.split(", ");
                     if (parts[1].equals(p.getName()) && parts[2].equals("false")) {
-                        list.add(parts[0]);
+                        if (args.length != 0) {
+                            if (parts[0].startsWith(args[0])) {
+                                list.add(parts[0]);
+                            }
+                        } else {
+                            list.add(parts[0]);
+                        }
                     }
                 }
             } catch (IOException ioe) {
