@@ -11,19 +11,9 @@ import java.io.*;
 import java.util.*;
 
 public class SetHome implements CommandExecutor {
-    private String separator;
-
-    public SetHome() {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        File home = new File("plugins" + separator + "TeleportationCommands" + separator + "homes" + separator + sender.getName());
+        File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName());
         try {
             home.createNewFile();
             BufferedReader bfr = new BufferedReader(new FileReader(home));
@@ -32,13 +22,14 @@ public class SetHome implements CommandExecutor {
             while (h != null) {
                 if (h.substring(0,h.indexOf(" ")).equals(args[0].toLowerCase())) {
                     sender.sendMessage("Home: " + args[0] + " already exists");
+                    bfr.close();
                     return true;
                 }
                 homes.add(h);
                 h = bfr.readLine();
             }
             bfr.close();
-            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "homes" + separator + sender.getName()));
+            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName()));
             Player p = (Player) sender;
             Location l = p.getLocation();
             for (String h1 : homes) {

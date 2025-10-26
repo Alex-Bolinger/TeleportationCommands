@@ -8,23 +8,12 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.Locale;
 
 public class SetWarp implements CommandExecutor {
-    private String separator;
-
-    public SetWarp() {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "warps.dat"));
+            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat"));
             String line = bfr.readLine();
             Player p = (Player) sender;
             String warpName = args[0];
@@ -36,13 +25,14 @@ public class SetWarp implements CommandExecutor {
                 String otherWarp = line.substring(0, line.indexOf(","));
                 if (otherWarp.toLowerCase().equals(warpName)) {
                     p.sendMessage("Warp name: " + warpName + " is already taken");
+                    bfr.close();
                     return true;
                 } else {
                     line = bfr.readLine();
                 }
             }
             bfr.close();
-            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "warps.dat", true));
+            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat", true));
             Location l = p.getLocation();
             bfw.write(warpName + ", " + l.getX() + " " + l.getY() + " " + l.getZ() + "\n");
             bfw.flush();

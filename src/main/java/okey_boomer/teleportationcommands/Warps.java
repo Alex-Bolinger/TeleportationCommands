@@ -6,24 +6,15 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class Warps implements CommandExecutor {
-    private String separator;
-
-    public Warps() {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "warps.dat"));
+            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat"));
             String line = bfr.readLine();
             String out = "";
             while (line != null) {

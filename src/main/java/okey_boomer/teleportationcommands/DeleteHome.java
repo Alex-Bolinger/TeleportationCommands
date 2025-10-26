@@ -9,19 +9,9 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class DeleteHome implements CommandExecutor {
-    private String separator;
-
-    public DeleteHome() {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        File home = new File("plugins" + separator + "TeleportationCommands" + separator + "homes" + separator + sender.getName());
+        File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName());
         if (home.exists()) {
             try {
                 BufferedReader bfr = new BufferedReader(new FileReader(home));

@@ -13,21 +13,10 @@ import java.util.ArrayList;
 
 public class Teleport implements CommandExecutor {
     private final Plugin plugin;
-
-    private String separator;
-
-    private boolean ready;
-
     private Player otherPlayer;
 
     public Teleport(Plugin plugin) {
         this.plugin = plugin;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-        ready = false;
     }
 
     @Override
@@ -47,18 +36,20 @@ public class Teleport implements CommandExecutor {
                 return false;
             }
             try {
-                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
+                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
                 String line = bfr.readLine();
                 while (line != null) {
                     if (line.substring(0, line.indexOf(",")).equals(p.getName())
                             && line.substring(line.indexOf(",") + 2, line.lastIndexOf(",")).equals(args[0])
                             && line.substring(line.lastIndexOf(",") + 2).equals("false")) {
+                                bfr.close();
                         return false;
                     } else {
                         line = bfr.readLine();
                     }
                 }
-                BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat", true));
+                bfr.close();
+                BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat", true));
                 bfw.write(p.getName() + ", " + args[0] + ", false");
                 bfw.flush();
                 bfw.close();
@@ -71,7 +62,7 @@ public class Teleport implements CommandExecutor {
                 @Override
                 public void run() {
                     try {
-                        BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
+                        BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
                         ArrayList<String> data = new ArrayList<>();
                         String line = bfr.readLine();
                         while (line != null) {
@@ -80,7 +71,7 @@ public class Teleport implements CommandExecutor {
                                     && line.substring(line.indexOf(",") + 2, line.lastIndexOf(",")).equals(args[0])) {
                                 bfr.close();
                                 data.remove(data.size() - 1);
-                                BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
+                                BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
                                 String out = "";
                                 for (String s : data) {
                                     out += s + "\n";
@@ -95,6 +86,7 @@ public class Teleport implements CommandExecutor {
                                 break;
                             }
                         }
+                        bfr.close();
                     } catch (IOException ioe) {
                         ioe.printStackTrace();
                     }

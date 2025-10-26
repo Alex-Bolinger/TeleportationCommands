@@ -7,24 +7,12 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.logging.Level;
 
 public class DeleteWarp implements CommandExecutor {
-    private String separator;
-
-    public DeleteWarp() {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "warps.dat"));
+            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat"));
             String line = bfr.readLine();
             Player p = (Player) sender;
             String warpName = args[0];
@@ -44,11 +32,11 @@ public class DeleteWarp implements CommandExecutor {
                     line = bfr.readLine();
                 }
             }
+            bfr.close();
             if (!found) {
                 return false;
             }
-            bfr.close();
-            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "warps.dat"));
+            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat"));
             bfw.write(out);
             bfw.flush();
             bfw.close();

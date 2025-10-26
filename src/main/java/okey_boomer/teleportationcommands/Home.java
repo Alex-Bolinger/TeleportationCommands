@@ -11,26 +11,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 
 public class Home implements CommandExecutor {
-    private String separator;
-
-    public Home() {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args[0] == null) {
             sender.sendMessage("Please specify a home to teleport to!");
             return true;
         }
-        File home = new File("plugins" + separator + "TeleportationCommands" + separator + "homes" + separator + sender.getName());
+        File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName());
         if (home.exists()) {
             try {
                 BufferedReader bfr = new BufferedReader(new FileReader(home));
@@ -44,6 +33,7 @@ public class Home implements CommandExecutor {
                         coord = bfr.readLine();
                     }
                 }
+                bfr.close();
                 if (coord == null) {
                     sender.sendMessage("Home: " + args[0].toLowerCase() + " not found");
                     return true;

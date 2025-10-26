@@ -12,18 +12,6 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class TPAccept implements CommandExecutor {
-    private final Plugin plugin;
-    private String separator;
-
-    public TPAccept(Plugin plugin) {
-        this.plugin = plugin;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player p = (Player) sender;
@@ -40,10 +28,11 @@ public class TPAccept implements CommandExecutor {
             return false;
         }
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
+            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
             ArrayList<String> data = new ArrayList<>();
             String line = bfr.readLine();
             if (line == null) {
+                bfr.close();
                 return true;
             }
             while (line != null) {
@@ -64,7 +53,7 @@ public class TPAccept implements CommandExecutor {
             if (!found) {
                 return false;
             }
-            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
+            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
             bfw.write(out);
             bfw.flush();
             bfw.close();

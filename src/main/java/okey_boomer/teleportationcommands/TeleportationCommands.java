@@ -14,18 +14,12 @@ public final class TeleportationCommands extends JavaPlugin {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        String separator;
         ArrayList<String> list = new ArrayList<>();
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
         Player p = (Player) sender;
         World w = p.getWorld();
         if (command.getName().equals("warp") || command.getName().equals("deleteWarp")) {
             try {
-                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "warps.dat"));
+                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat"));
                 String line = bfr.readLine();
                 while (line != null) {
                     String item = line.substring(0, line.indexOf(','));
@@ -54,7 +48,7 @@ public final class TeleportationCommands extends JavaPlugin {
                 }
             }
         } else if (command.getName().equals("home") || command.getName().equals("deleteHome")) {
-            File home = new File("plugins" + separator + "TeleportationCommands" + separator + "homes" + separator + sender.getName());
+            File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName());
             if (home.exists()) {
                 try {
                     BufferedReader bfr = new BufferedReader(new FileReader(home));
@@ -76,7 +70,7 @@ public final class TeleportationCommands extends JavaPlugin {
             }
         } else if (command.getName().equals("tpaccept") || command.getName().equals("tpdecline")) {
             try {
-                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
+                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
                 String line = bfr.readLine();
                 while (line != null) {
                     String[] parts = line.split(", ");
@@ -101,16 +95,10 @@ public final class TeleportationCommands extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         saveDefaultConfig();
-        String separator;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
-        Spawn s = new Spawn(this);
+        Spawn s = new Spawn();
         Teleport t = new Teleport(this);
-        TPAccept tpAccept = new TPAccept(this);
-        TPDecline tpDecline = new TPDecline(this);
+        TPAccept tpAccept = new TPAccept();
+        TPDecline tpDecline = new TPDecline();
         SetWarp setWarp = new SetWarp();
         Warp warp = new Warp();
         DeleteWarp deleteWarp = new DeleteWarp();
@@ -119,7 +107,7 @@ public final class TeleportationCommands extends JavaPlugin {
         SetHome setHome = new SetHome();
         DeleteHome deleteHome = new DeleteHome();
         Homes homes = new Homes();
-        File activeTeleportations = new File("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat");
+        File activeTeleportations = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat");
         if (!activeTeleportations.exists()) {
             try {
                 activeTeleportations.createNewFile();
@@ -127,7 +115,7 @@ public final class TeleportationCommands extends JavaPlugin {
                 ioe.printStackTrace();
             }
         }
-        File warps = new File("plugins" + separator + "TeleportationCommands" + separator + "warps.dat");
+        File warps = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat");
         if (!warps.exists()) {
             try {
                 warps.createNewFile();
@@ -150,7 +138,7 @@ public final class TeleportationCommands extends JavaPlugin {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-        File homesDir = new File("plugins" + separator + "TeleportationCommands" + separator + "homes");
+        File homesDir = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes");
         if (!homesDir.exists()) {
             homesDir.mkdir();
         }
@@ -184,14 +172,8 @@ public final class TeleportationCommands extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        String separator;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            separator = "\\";
-        } else {
-            separator = "/";
-        }
         try {
-            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + separator + "TeleportationCommands" + separator + "activeTeleportations.dat"));
+            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
             bfw.write("");
             bfw.flush();
             bfw.close();
