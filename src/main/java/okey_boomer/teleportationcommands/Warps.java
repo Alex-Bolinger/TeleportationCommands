@@ -21,6 +21,7 @@ public class Warps implements CommandExecutor {
                 out += line.substring(0, line.indexOf(",")) + "\n";
                 line = bfr.readLine();
             }
+            bfr.close();
             if (out.length() > 0) {
                 out = out.substring(0, out.length() - 1);
             }

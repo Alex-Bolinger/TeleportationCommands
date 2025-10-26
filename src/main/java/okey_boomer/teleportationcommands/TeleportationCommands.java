@@ -32,6 +32,7 @@ public final class TeleportationCommands extends JavaPlugin {
                     }
                     line = bfr.readLine();
                 }
+                bfr.close();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
@@ -64,6 +65,7 @@ public final class TeleportationCommands extends JavaPlugin {
                         }
                         line = bfr.readLine();
                     }
+                    bfr.close();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -84,6 +86,7 @@ public final class TeleportationCommands extends JavaPlugin {
                         }
                     }
                 }
+                bfr.close();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
