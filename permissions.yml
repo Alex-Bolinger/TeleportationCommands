@@ -1,4 +1,0 @@
-permissions:
-    warpOp:
-        description: allows user to set warps
-        default: op

@@ -3,7 +3,10 @@ package okey_boomer.teleportationcommands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,6 +14,13 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Warps implements CommandExecutor {
+    private ComponentLogger LOGGER;
+
+    public Warps(JavaPlugin plugin) {
+        LOGGER = plugin.getComponentLogger();
+    }
+
+    
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {

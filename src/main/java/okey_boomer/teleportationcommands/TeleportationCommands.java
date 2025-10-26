@@ -98,18 +98,18 @@ public final class TeleportationCommands extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         saveDefaultConfig();
-        Spawn s = new Spawn();
+        Spawn s = new Spawn(this);
         Teleport t = new Teleport(this);
-        TPAccept tpAccept = new TPAccept();
-        TPDecline tpDecline = new TPDecline();
-        SetWarp setWarp = new SetWarp();
-        Warp warp = new Warp();
-        DeleteWarp deleteWarp = new DeleteWarp();
-        Warps warpsCommand = new Warps();
-        Home home = new Home();
-        SetHome setHome = new SetHome();
-        DeleteHome deleteHome = new DeleteHome();
-        Homes homes = new Homes();
+        TPAccept tpAccept = new TPAccept(this);
+        TPDecline tpDecline = new TPDecline(this);
+        SetWarp setWarp = new SetWarp(this);
+        Warp warp = new Warp(this);
+        DeleteWarp deleteWarp = new DeleteWarp(this);
+        Warps warpsCommand = new Warps(this);
+        Home home = new Home(this);
+        SetHome setHome = new SetHome(this);
+        DeleteHome deleteHome = new DeleteHome(this);
+        Homes homes = new Homes(this);
         File activeTeleportations = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat");
         if (!activeTeleportations.exists()) {
             try {

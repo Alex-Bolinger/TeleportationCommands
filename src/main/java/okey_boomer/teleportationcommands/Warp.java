@@ -5,7 +5,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,6 +17,13 @@ import java.io.IOException;
 
 
 public class Warp implements CommandExecutor {
+    private ComponentLogger LOGGER;
+
+    public Warp(JavaPlugin plugin) {
+        LOGGER = plugin.getComponentLogger();
+    }
+
+    
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {
@@ -41,11 +51,9 @@ public class Warp implements CommandExecutor {
                 return true;
             }
             String coords = line.substring(line.indexOf(",") + 2);
-            Location l = new Location(p.getWorld(), Double.parseDouble(coords.substring(0, coords.indexOf(" "))),
-                    Double.parseDouble(coords.substring(coords.indexOf(" ") + 1, coords.lastIndexOf(" "))),
-                    Double.parseDouble(coords.substring(coords.lastIndexOf(" ") + 1)));
+            Location l = LocationHelper.deserializeLocation(coords);
             p.teleport(l);
-            p.sendMessage("Warped to " + l.getX() + ", " + l.getY() + ", " + l.getZ());
+            p.sendMessage("Warped to " + warpName);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

@@ -5,7 +5,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,6 +16,12 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Home implements CommandExecutor {
+    private ComponentLogger LOGGER;
+
+    public Home(JavaPlugin plugin) {
+        LOGGER = plugin.getComponentLogger();
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args[0] == null) {
@@ -38,11 +47,10 @@ public class Home implements CommandExecutor {
                     sender.sendMessage("Home: " + args[0].toLowerCase() + " not found");
                     return true;
                 }
-                double x = Double.parseDouble(coord.substring(0, coord.indexOf(" ")));
-                double y = Double.parseDouble(coord.substring(coord.indexOf(" ") + 1, coord.lastIndexOf(" ")));
-                double z = Double.parseDouble(coord.substring(coord.lastIndexOf(" ") + 1));
+                Location l = LocationHelper.deserializeLocation(coord);
                 Player p = (Player) sender;
-                p.teleport(new Location(p.getWorld(), x, y, z));
+                LOGGER.info("Teleporting player: " + p.getName() + " to " + l.toString());
+                p.teleport(l);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }

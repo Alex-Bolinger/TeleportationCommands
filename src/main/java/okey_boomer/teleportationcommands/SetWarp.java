@@ -5,11 +5,21 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.*;
 
 public class SetWarp implements CommandExecutor {
+    private ComponentLogger LOGGER;
+
+    public SetWarp(JavaPlugin plugin) {
+        LOGGER = plugin.getComponentLogger();
+    }
+
+    
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {
@@ -34,7 +44,7 @@ public class SetWarp implements CommandExecutor {
             bfr.close();
             BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat", true));
             Location l = p.getLocation();
-            bfw.write(warpName + ", " + l.getX() + " " + l.getY() + " " + l.getZ() + "\n");
+            bfw.write(warpName + ", " + l.serialize());
             bfw.flush();
             bfw.close();
             p.sendMessage("Set warp " + warpName +  " at " + l.getX() + ", " + l.getY() + ", " + l.getZ());

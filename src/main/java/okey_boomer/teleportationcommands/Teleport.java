@@ -5,17 +5,17 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
 
 public class Teleport implements CommandExecutor {
-    private final Plugin plugin;
+    private final JavaPlugin plugin;
     private Player otherPlayer;
 
-    public Teleport(Plugin plugin) {
+    public Teleport(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
