@@ -42,4 +42,6 @@ commands:
   deleteHome:
     description: Removes the player's home
     usage: /deleteHome homeName
-
+  back:
+    description: Returns the player to last death location
+    usage: /back

@@ -37,7 +37,9 @@ public class Homes implements CommandExecutor {
             }
             sender.sendMessage("Homes\n_________________________");
             for (String h1 : homes) {
-                sender.sendMessage(h1);
+                if (!h1.equals("death {")) {
+                    sender.sendMessage(h1);
+                }
             }
         } catch(FileNotFoundException fnfe) {
             fnfe.printStackTrace();

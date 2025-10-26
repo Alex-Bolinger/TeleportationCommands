@@ -1,5 +1,6 @@
 package okey_boomer.teleportationcommands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,7 +17,6 @@ public final class TeleportationCommands extends JavaPlugin {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         ArrayList<String> list = new ArrayList<>();
         Player p = (Player) sender;
-        World w = p.getWorld();
         if (command.getName().equals("warp") || command.getName().equals("deleteWarp")) {
             try {
                 BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat"));
@@ -37,7 +37,11 @@ public final class TeleportationCommands extends JavaPlugin {
                 ioe.printStackTrace();
             }
         } else if (command.getName().equals("tpa")) {
-            for (Player player : w.getPlayers()) {
+            ArrayList<Player> allPlayers = new ArrayList<>();
+            for (World world : getServer().getWorlds()) {
+                allPlayers.addAll(world.getPlayers());
+            }
+            for (Player player : allPlayers) {
                 if (!p.equals(player)) {
                     if (args.length != 0) {
                         if (player.getName().startsWith(args[0])) {
@@ -55,13 +59,15 @@ public final class TeleportationCommands extends JavaPlugin {
                     BufferedReader bfr = new BufferedReader(new FileReader(home));
                     String line = bfr.readLine();
                     while (line != null) {
-                        String item = line.substring(0, line.indexOf(' '));
-                        if (args.length != 0) {
-                            if (item.startsWith(args[0])) {
+                        if (!line.startsWith("death {")) {
+                            String item = line.substring(0, line.indexOf(' '));
+                            if (args.length != 0) {
+                                if (item.startsWith(args[0])) {
+                                    list.add(line.substring(0, line.indexOf(' ')));
+                                }
+                            } else {
                                 list.add(line.substring(0, line.indexOf(' ')));
                             }
-                        } else {
-                            list.add(line.substring(0, line.indexOf(' ')));
                         }
                         line = bfr.readLine();
                     }
@@ -110,6 +116,8 @@ public final class TeleportationCommands extends JavaPlugin {
         SetHome setHome = new SetHome(this);
         DeleteHome deleteHome = new DeleteHome(this);
         Homes homes = new Homes(this);
+        Back back = new Back(this);
+        getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         File activeTeleportations = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat");
         if (!activeTeleportations.exists()) {
             try {
@@ -157,6 +165,7 @@ public final class TeleportationCommands extends JavaPlugin {
         this.getCommand("setHome").setExecutor(setHome);
         this.getCommand("deleteHome").setExecutor(deleteHome);
         this.getCommand("homes").setExecutor(homes);
+        this.getCommand("back").setExecutor(back);
 
         this.getCommand("spawn").setTabCompleter(this);
         this.getCommand("tpa").setTabCompleter(this);
@@ -170,6 +179,7 @@ public final class TeleportationCommands extends JavaPlugin {
         this.getCommand("setHome").setTabCompleter(this);
         this.getCommand("deleteHome").setTabCompleter(this);
         this.getCommand("homes").setTabCompleter(this);
+        this.getCommand("back").setTabCompleter(this);
     }
 
     @Override

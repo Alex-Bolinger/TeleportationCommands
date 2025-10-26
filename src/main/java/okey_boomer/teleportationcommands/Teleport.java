@@ -1,5 +1,6 @@
 package okey_boomer.teleportationcommands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,10 +24,13 @@ public class Teleport implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            World w = p.getWorld();
             otherPlayer = null;
             boolean found = false;
-            for (Player player : w.getPlayers()) {
+            ArrayList<Player> allPlayers = new ArrayList<>();
+            for (World world : Bukkit.getServer().getWorlds()) {
+                allPlayers.addAll(world.getPlayers());
+            }
+            for (Player player : allPlayers) {
                 if (player.getName().equals(args[0])) {
                     otherPlayer = player;
                     found = true;
