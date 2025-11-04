@@ -44,10 +44,10 @@ public class Back implements CommandExecutor{
                     sender.sendMessage("Death location not found");
                     return true;
                 }
-                Location l = LocationHelper.deserializeLocation(coord);
+                Location l = TeleportHelper.deserializeLocation(coord);
                 Player p = (Player) sender;
                 LOGGER.info("Teleporting player: " + p.getName() + " to " + l.toString());
-                p.teleport(l);
+                TeleportHelper.teleport(p, l);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }

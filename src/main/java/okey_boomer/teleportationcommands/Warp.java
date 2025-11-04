@@ -51,8 +51,8 @@ public class Warp implements CommandExecutor {
                 return true;
             }
             String coords = line.substring(line.indexOf(",") + 2);
-            Location l = LocationHelper.deserializeLocation(coords);
-            p.teleport(l);
+            Location l = TeleportHelper.deserializeLocation(coords);
+            TeleportHelper.teleport(p, l);
             p.sendMessage("Warped to " + warpName);
         } catch (IOException ioe) {
             ioe.printStackTrace();

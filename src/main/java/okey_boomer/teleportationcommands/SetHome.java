@@ -24,6 +24,12 @@ public class SetHome implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        String homeName;
+        if (args.length == 0) {
+            homeName = "home";
+        } else {
+            homeName = args[0];
+        }
         File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName());
         try {
             home.createNewFile();
@@ -31,8 +37,8 @@ public class SetHome implements CommandExecutor {
             ArrayList<String> homes = new ArrayList<>();
             String h = bfr.readLine();
             while (h != null) {
-                if (h.substring(0,h.indexOf(" ")).equals(args[0].toLowerCase())) {
-                    sender.sendMessage("Home: " + args[0] + " already exists");
+                if (h.substring(0,h.indexOf(" ")).equals(homeName.toLowerCase())) {
+                    sender.sendMessage("Home: " + homeName + " already exists");
                     bfr.close();
                     return true;
                 }
@@ -47,10 +53,10 @@ public class SetHome implements CommandExecutor {
             }
             Player p = (Player) sender;
             Location l = p.getLocation();
-            bfw.write(args[0].toLowerCase() + " " + l.serialize());
+            bfw.write(homeName.toLowerCase() + " " + l.serialize());
             bfw.flush();
             bfw.close();
-            p.sendMessage("Successfully set home: " + args[0].toLowerCase() + " at " + l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ());
+            p.sendMessage("Successfully set home: " + homeName.toLowerCase() + " at " + l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ());
             LOGGER.info("Player: " + p.getName() + "set home at: " + l.serialize());
         } catch (IOException ioe) {
             ioe.printStackTrace();

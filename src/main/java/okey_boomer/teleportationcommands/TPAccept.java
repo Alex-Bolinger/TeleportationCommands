@@ -1,5 +1,6 @@
 package okey_boomer.teleportationcommands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,18 +24,26 @@ public class TPAccept implements CommandExecutor {
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (args[0] == null) {
+            sender.sendMessage("Please specify player whose request you are accepting!");
+            return true;
+        }
         Player p = (Player) sender;
-        World w = p.getWorld();
         Player otherPlayer = null;
         boolean found = false;
-        for (Player player : w.getPlayers()) {
+        ArrayList<Player> allPlayers = new ArrayList<>();
+        for (World world : Bukkit.getServer().getWorlds()) {
+            allPlayers.addAll(world.getPlayers());
+        }
+        for (Player player : allPlayers) {
             if (player.getName().equals(args[0])) {
                 found = true;
                 otherPlayer = player;
             }
         }
         if (!found) {
-            return false;
+            sender.sendMessage("Other player not found");
+            return true;
         }
         try {
             BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
@@ -60,14 +69,15 @@ public class TPAccept implements CommandExecutor {
                 out += s + "\n";
             }
             if (!found) {
-                return false;
+                sender.sendMessage("Teleport request not found");
+                return true;
             }
             BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
             bfw.write(out);
             bfw.flush();
             bfw.close();
             p.sendMessage("Accepted " + args[0] + "'s teleport request");
-            otherPlayer.teleport(p.getLocation());
+            TeleportHelper.teleport(otherPlayer, p.getLocation());
             otherPlayer.sendMessage(p.getName() + " accepted your teleport request");
         } catch (IOException ioe) {
             ioe.printStackTrace();

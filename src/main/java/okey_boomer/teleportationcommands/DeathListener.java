@@ -29,7 +29,7 @@ public class DeathListener implements Listener {
             BufferedReader bfr = new BufferedReader(new FileReader(homes));
             String allHomes = "death " + pde.getEntity().getLocation().serialize() + "\n";
             String line = bfr.readLine();
-            while (!line.isEmpty()) {
+            while (line != null) {
                 allHomes += !line.startsWith("death {") ? line + "\n" : "";
                 line = bfr.readLine(); 
             }

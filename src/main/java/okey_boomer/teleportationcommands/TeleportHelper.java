@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 
-public class LocationHelper {
+public class TeleportHelper {
     public static Location deserializeLocation(String savedLocation) {
         savedLocation = savedLocation.substring(1, savedLocation.length() - 1);
         HashMap<String, Object> lMap = new HashMap<String, Object>();
@@ -23,5 +25,18 @@ public class LocationHelper {
             }
         }
         return Location.deserialize(lMap);
+    }
+
+    public static boolean teleport(Player player, Location location) {
+        Vehicle vehicle = (Vehicle) player.getVehicle();
+        if (vehicle != null) {
+            vehicle.removePassenger(player);
+            vehicle.teleport(location);
+            player.teleport(location);
+            vehicle.addPassenger(player);
+            return true;
+        } else {
+            return player.teleport(location);
+        }
     }
 }

@@ -44,7 +44,7 @@ public class SetWarp implements CommandExecutor {
             bfr.close();
             BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat", true));
             Location l = p.getLocation();
-            bfw.write(warpName + ", " + l.serialize());
+            bfw.write(warpName + ", " + l.serialize() + "\n");
             bfw.flush();
             bfw.close();
             p.sendMessage("Set warp " + warpName +  " at " + l.getX() + ", " + l.getY() + ", " + l.getZ());

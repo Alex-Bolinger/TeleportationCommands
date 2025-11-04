@@ -81,16 +81,20 @@ public final class TeleportationCommands extends JavaPlugin {
                 BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
                 String line = bfr.readLine();
                 while (line != null) {
+                    this.getComponentLogger().info(line);
                     String[] parts = line.split(", ");
-                    if (parts[1].equals(p.getName()) && parts[2].equals("false")) {
-                        if (args.length != 0) {
-                            if (parts[0].startsWith(args[0])) {
+                    if (parts.length == 3) { 
+                        if (parts[1].equals(p.getName()) && parts[2].equals("false")) {
+                            if (args.length != 0) {
+                                if (parts[0].startsWith(args[0])) {
+                                    list.add(parts[0]);
+                                }
+                            } else {
                                 list.add(parts[0]);
                             }
-                        } else {
-                            list.add(parts[0]);
                         }
                     }
+                    line = bfr.readLine();
                 }
                 bfr.close();
             } catch (IOException ioe) {

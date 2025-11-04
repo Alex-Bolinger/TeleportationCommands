@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import io.papermc.paper.entity.TeleportFlag;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 public class Spawn implements CommandExecutor {
@@ -23,7 +24,7 @@ public class Spawn implements CommandExecutor {
         if (sender instanceof Player) {
             Player p = (Player) sender;
             World w = p.getWorld();
-            p.teleport(w.getSpawnLocation());
+            TeleportHelper.teleport(p, w.getSpawnLocation());
             LOGGER.info("Teleported player: " + ((Player)sender).getName() + " to spawn");
             return true;
         } else {
