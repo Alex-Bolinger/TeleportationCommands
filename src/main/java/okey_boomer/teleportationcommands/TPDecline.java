@@ -9,9 +9,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import com.google.gson.Gson;
+
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class TPDecline implements CommandExecutor {
@@ -24,9 +29,9 @@ public class TPDecline implements CommandExecutor {
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args[0] == null) {
-            sender.sendMessage("Please specify player whose request you are declining!");
-            return false;
+        if (args.length == 0) {
+            sender.sendMessage("§cPlease specify player whose request you are declining!");
+            return true;
         }
         Player p = (Player) sender;
         Player otherPlayer = null;
@@ -41,41 +46,51 @@ public class TPDecline implements CommandExecutor {
                 otherPlayer = player;
             }
         }
-        try {
-            BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
-            ArrayList<String> data = new ArrayList<>();
-            String line = bfr.readLine();
-            if (line == null) {
+        File f = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "teleport" + File.separator + otherPlayer.getName() + ".json");
+        TeleportRequests requests;
+        Gson gson = new Gson();
+        if (f.exists()) {
+            try {
+                StringBuilder in = new StringBuilder();
+                BufferedReader bfr = new BufferedReader(new FileReader(f));
+                String line = bfr.readLine();
+                while (line != null) {
+                    in.append(line);
+                    line = bfr.readLine();
+                }
                 bfr.close();
+                requests = gson.fromJson(in.toString(), TeleportRequests.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+                p.sendMessage("§cError declining teleport request");
                 return true;
             }
-            while (line != null) {
-                data.add(line);
-                line = bfr.readLine();
-            }
-            bfr.close();
-            String out = "";
-            found = false;
-            for (String s : data) {
-                if (s.substring(0, s.indexOf(",")).equals(args[0])
-                        && s.substring(s.indexOf(",") + 2, s.lastIndexOf(",")).equals(p.getName())) {
-                    s = s.substring(0, s.lastIndexOf(",")) + ", declined";
-                    found = true;
-                }
-                out += s + "\n";
-            }
-            if (!found) {
-                return false;
-            }
-            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
-            bfw.write(out);
-            bfw.flush();
-            bfw.close();
-            p.sendMessage("Declined " + args[0] + "'s teleport request");
-            otherPlayer.sendMessage(p.getName() + " declined your teleport request");
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        } else {
+            p.sendMessage("§cNo active teleportation requests found");
+            return true;
         }
+
+        if (requests.requestExists(p)) {
+            requests.removeRequest(p);
+            try {
+                if (requests.isEmpty()) {
+                    Files.delete(Paths.get(f.getAbsolutePath()));
+                } else {
+                    BufferedWriter bfw = new BufferedWriter(new FileWriter(f));
+                    bfw.write(gson.toJson(requests));
+                    bfw.flush();
+                    bfw.close();
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        } else {
+            p.sendActionBar(Component.text("§cTeleport request from " + otherPlayer.getName() + " not found"));
+            return true;
+        }
+
+        p.sendActionBar(Component.text("Declined " + args[0] + "'s teleport request"));
+        otherPlayer.sendMessage("§c" + p.getName() + " declined your teleport request");
         return true;
     }
 }

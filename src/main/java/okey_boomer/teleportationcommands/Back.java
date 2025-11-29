@@ -13,6 +13,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 public class Back implements CommandExecutor{
@@ -25,35 +29,41 @@ public class Back implements CommandExecutor{
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
             @NotNull String @NotNull [] args) {
-        File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName());
-        if (home.exists()) {
-            try {
+        String homeName = "death";
+        Player p = (Player) sender;
+        File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + p.getName() + ".json");
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(HomesData.class, new HomesData.HomesDataSerializer());
+        gsonBuilder.registerTypeAdapter(HomesData.class, new HomesData.HomesDataDeserializer());
+        Gson gson = gsonBuilder.create();
+        HomesData homes;
+        try {
+            if (home.exists()) {
+                StringBuilder in = new StringBuilder();
                 BufferedReader bfr = new BufferedReader(new FileReader(home));
-                String coord = bfr.readLine();
-                boolean found = false;
-                while (coord != null && !found) {
-                    if (coord.substring(0, coord.indexOf(' ')).equals("death")) {
-                        coord = coord.substring(coord.indexOf(' ')+1);
-                        found = true;
-                    } else {
-                        coord = bfr.readLine();
-                    }
+                String line = bfr.readLine();
+                while (line != null) {
+                    in.append(line);
+                    line = bfr.readLine();
                 }
+                homes = gson.fromJson(in.toString(), HomesData.class);
                 bfr.close();
-                if (coord == null) {
-                    sender.sendMessage("Death location not found");
-                    return true;
-                }
-                Location l = TeleportHelper.deserializeLocation(coord);
-                Player p = (Player) sender;
-                LOGGER.info("Teleporting player: " + p.getName() + " to " + l.toString());
-                TeleportHelper.teleport(p, l);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
+            } else {
+                sender.sendMessage("§cNo homes set");
+                return true;
             }
-        } else {
-            sender.sendMessage("Death location not found");
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            homes = new HomesData();
         }
+        if (homes.getHome(homeName) == null) {
+            p.sendMessage("§cDeath location not found");
+            return true;
+        }
+        Location l = homes.getHome(homeName);
+        TeleportHelper.teleport(p, l);
+        p.sendActionBar(Component.text("Teleported to last death location"));
+        
         return true;
     }
 }

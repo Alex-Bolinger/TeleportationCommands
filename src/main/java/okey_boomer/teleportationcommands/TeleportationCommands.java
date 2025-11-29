@@ -1,14 +1,21 @@
 package okey_boomer.teleportationcommands;
 
-import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public final class TeleportationCommands extends JavaPlugin {
@@ -53,52 +60,67 @@ public final class TeleportationCommands extends JavaPlugin {
                 }
             }
         } else if (command.getName().equals("home") || command.getName().equals("deleteHome")) {
-            File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName());
-            if (home.exists()) {
-                try {
+            File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + p.getName() + ".json");
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(HomesData.class, new HomesData.HomesDataSerializer());
+            gsonBuilder.registerTypeAdapter(HomesData.class, new HomesData.HomesDataDeserializer());
+            Gson gson = gsonBuilder.create();
+            HomesData homes;
+            try {
+                if (home.exists()) {
+                    StringBuilder in = new StringBuilder();
                     BufferedReader bfr = new BufferedReader(new FileReader(home));
                     String line = bfr.readLine();
                     while (line != null) {
-                        if (!line.startsWith("death {")) {
-                            String item = line.substring(0, line.indexOf(' '));
-                            if (args.length != 0) {
-                                if (item.startsWith(args[0])) {
-                                    list.add(line.substring(0, line.indexOf(' ')));
-                                }
-                            } else {
-                                list.add(line.substring(0, line.indexOf(' ')));
-                            }
-                        }
+                        in.append(line);
                         line = bfr.readLine();
                     }
+                    homes = gson.fromJson(in.toString(), HomesData.class);
                     bfr.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
+                } else {
+                    homes = new HomesData();
                 }
-            }
-        } else if (command.getName().equals("tpaccept") || command.getName().equals("tpdecline")) {
-            try {
-                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
-                String line = bfr.readLine();
-                while (line != null) {
-                    this.getComponentLogger().info(line);
-                    String[] parts = line.split(", ");
-                    if (parts.length == 3) { 
-                        if (parts[1].equals(p.getName()) && parts[2].equals("false")) {
-                            if (args.length != 0) {
-                                if (parts[0].startsWith(args[0])) {
-                                    list.add(parts[0]);
-                                }
-                            } else {
-                                list.add(parts[0]);
-                            }
-                        }
-                    }
-                    line = bfr.readLine();
-                }
-                bfr.close();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
+                homes = new HomesData();
+            }
+
+            homes.getAllHomes().forEach(entry -> {
+                if (!entry.getKey().equals("death") && entry.getKey().startsWith(args[0])) {
+                    list.add(entry.getKey());
+                }
+            });
+            Collections.sort(list);
+        } else if (command.getName().equals("tpaccept") || command.getName().equals("tpdecline")) {
+            ArrayList<Player> allPlayers = new ArrayList<>();
+            for (World world : getServer().getWorlds()) {
+                allPlayers.addAll(world.getPlayers());
+            }
+
+            for (Player player : allPlayers) {
+                if (player.getName().startsWith(args[0])) {
+                    try {
+                        File f = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "teleport" + File.separator + player.getName() + ".json");
+                        TeleportRequests requests;
+                        Gson gson = new Gson();
+                        if (f.exists()) {
+                            StringBuilder in = new StringBuilder();
+                            BufferedReader bfr = new BufferedReader(new FileReader(f));
+                            String line = bfr.readLine();
+                            while (line != null) {
+                                in.append(line);
+                                line = bfr.readLine();
+                            }
+                            bfr.close();
+                            requests = gson.fromJson(in.toString(), TeleportRequests.class);
+                            if (requests.requestExists(p)) {
+                                list.add(player.getName());
+                            }
+                        }
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
             }
         }
         return list;
@@ -122,14 +144,6 @@ public final class TeleportationCommands extends JavaPlugin {
         Homes homes = new Homes(this);
         Back back = new Back(this);
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
-        File activeTeleportations = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat");
-        if (!activeTeleportations.exists()) {
-            try {
-                activeTeleportations.createNewFile();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
         File warps = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat");
         if (!warps.exists()) {
             try {
@@ -156,6 +170,40 @@ public final class TeleportationCommands extends JavaPlugin {
         File homesDir = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes");
         if (!homesDir.exists()) {
             homesDir.mkdir();
+        } else {
+            File[] homeFiles = homesDir.listFiles();
+            for (File f : homeFiles) {
+                if (f.isFile() && !f.getAbsolutePath().contains(".")) {
+                    GsonBuilder gsonBuilder = new GsonBuilder();
+                    gsonBuilder.registerTypeAdapter(HomesData.class, new HomesData.HomesDataSerializer());
+                    gsonBuilder.registerTypeAdapter(HomesData.class, new HomesData.HomesDataDeserializer());
+                    Gson gson = gsonBuilder.create();
+                    String name = f.getName();
+                    HomesData homesData = new HomesData();
+                    try {
+                        File newHome = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + name + ".json");
+                        BufferedReader bfr = new BufferedReader(new FileReader(f));
+                        String line = bfr.readLine();
+                        while (line != null) {
+                            String homeName = line.substring(0, line.indexOf("{") - 1);
+                            Location l = TeleportHelper.deserializeLocation(line.substring(line.indexOf("{")));
+                            homesData.addHome(homeName, l);
+                            line = bfr.readLine();
+                        }
+                        bfr.close();
+                        BufferedWriter bfw = new BufferedWriter(new FileWriter(newHome));
+                        bfw.write(gson.toJson(homesData));
+                        bfw.flush();
+                        bfw.close();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+            }
+        }
+        File tpDir = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "teleport");
+        if (!tpDir.exists()) {
+            tpDir.mkdir();
         }
         this.getCommand("spawn").setExecutor(s);
         this.getCommand("tpa").setExecutor(t);
@@ -190,10 +238,15 @@ public final class TeleportationCommands extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         try {
-            BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
-            bfw.write("");
-            bfw.flush();
-            bfw.close();
+            Files.walk(Paths.get("plugins" + File.separator + "TeleportationCommands" + File.separator + "teleport"))
+                .sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException ioe) {
+                        this.getComponentLogger().error("Error deleting: " + path);
+                    }
+                });
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

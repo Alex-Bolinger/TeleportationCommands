@@ -51,7 +51,7 @@ public class DeleteWarp implements CommandExecutor {
             bfw.flush();
             bfw.close();
             p.sendMessage("Successfully deleted warp:" + warpName);
-            LOGGER.info("Player: " + ((Player)sender).getName() + "deleted warp: " + args[0]);
+            LOGGER.info("Player: " + ((Player)sender).getName() + " deleted warp: " + args[0]);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

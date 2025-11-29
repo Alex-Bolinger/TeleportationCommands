@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.BufferedReader;
@@ -27,7 +28,9 @@ public class Warp implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {
-
+            if (args.length == 0) {
+                sender.sendMessage("§cPlease specify warp name");
+            }
             BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat"));
             boolean found = false;
             String line = bfr.readLine();
@@ -35,10 +38,9 @@ public class Warp implements CommandExecutor {
             for (int i = 1; i < args.length; i++) {
                 warpName += " " + args[i];
             }
-            warpName = warpName.toLowerCase();
             while (!found && line != null) {
                 String otherWarp = line.substring(0, line.indexOf(","));
-                if (otherWarp.toLowerCase().equals(warpName)) {
+                if (otherWarp.equals(warpName)) {
                     found = true;
                 } else {
                     line = bfr.readLine();
@@ -47,13 +49,13 @@ public class Warp implements CommandExecutor {
             bfr.close();
             Player p = (Player) sender;
             if (!found) {
-                p.sendMessage("Invalid Warp");
+                p.sendMessage("§cInvalid Warp");
                 return true;
             }
             String coords = line.substring(line.indexOf(",") + 2);
             Location l = TeleportHelper.deserializeLocation(coords);
             TeleportHelper.teleport(p, l);
-            p.sendMessage("Warped to " + warpName);
+            sender.sendActionBar(Component.text("Warped to: " + warpName));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

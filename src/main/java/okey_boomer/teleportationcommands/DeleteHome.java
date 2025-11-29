@@ -7,10 +7,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.*;
-import java.util.ArrayList;
 
 public class DeleteHome implements CommandExecutor {
     private ComponentLogger LOGGER;
@@ -22,45 +25,48 @@ public class DeleteHome implements CommandExecutor {
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + sender.getName());
-        if (home.exists()) {
-            try {
-                BufferedReader bfr = new BufferedReader(new FileReader(home));
-                ArrayList<String> homes = new ArrayList<>();
-                String h = bfr.readLine();
-                boolean found = false;
-                while (h != null) {
-                    if (!h.substring(0, h.indexOf(' ')).equals(args[0].toLowerCase())) {
-                        homes.add(h);
-                    } else {
-                        found = true;
-                    }
-                    h = bfr.readLine();
-                }
-                bfr.close();
-                if (found) {
-                    BufferedWriter bwr = new BufferedWriter(new FileWriter(home));
-                    String out = "";
-                    for (String h1 : homes) {
-                        out += h1 + "\n";
-                    }
-                    bwr.write(out);
-                    bwr.flush();
-                    bwr.close();
-                } else {
-                    sender.sendMessage("Home: " + args[0].toLowerCase() + " not found.");
-                    return true;
-                }
-            } catch (FileNotFoundException fnfe) {
-                fnfe.printStackTrace();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-            sender.sendMessage("Successfully deleted home: " + args[0]);
-            LOGGER.info("Player: " + ((Player)sender).getName() + "deleted their home: " + args[0]);
+        String homeName;
+        if (args.length == 0) {
+            homeName = "home";
         } else {
-            sender.sendMessage("No home set");
+            homeName = args[0];
         }
+        Player p = (Player) sender;
+        File home = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "homes" + File.separator + p.getName() + ".json");
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(HomesData.class, new HomesData.HomesDataSerializer());
+        gsonBuilder.registerTypeAdapter(HomesData.class, new HomesData.HomesDataDeserializer());
+        Gson gson = gsonBuilder.create();
+        try {
+            HomesData homes;
+            if (home.exists()) {
+                StringBuilder in = new StringBuilder();
+                BufferedReader bfr = new BufferedReader(new FileReader(home));
+                String line = bfr.readLine();
+                while (line != null) {
+                    in.append(line);
+                    line = bfr.readLine();
+                }
+                homes = gson.fromJson(in.toString(), HomesData.class);
+                bfr.close();
+            } else {
+                p.sendMessage("§cNo homes set!");
+                return true;
+            }
+            if (homes.getHome(homeName) == null) {
+                p.sendMessage("§cHome: " + homeName + " not found");
+                return true;
+            }
+            homes.deleteHome(homeName);
+            BufferedWriter bfw = new BufferedWriter(new FileWriter(home));
+            bfw.write(gson.toJson(homes));
+            bfw.flush();
+            bfw.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        sender.sendActionBar(Component.text("Successfully deleted home: " + homeName));
+        LOGGER.info("Player: " + p.getName() + " deleted home: " + homeName);
         return true;
     }
 }

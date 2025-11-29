@@ -6,7 +6,7 @@
 
     <groupId>Okey_Boomer</groupId>
     <artifactId>TeleportationCommands</artifactId>
-    <version>1.1.9</version>
+    <version>1.1.12</version>
     <packaging>jar</packaging>
 
     <name>TeleportationCommands</name>
@@ -65,6 +65,12 @@
             <artifactId>paper-api</artifactId>
             <version>1.21.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.13.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

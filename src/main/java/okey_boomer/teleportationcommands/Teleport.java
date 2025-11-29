@@ -9,7 +9,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import com.google.gson.Gson;
+
+import net.kyori.adventure.text.Component;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Teleport implements CommandExecutor {
@@ -22,8 +33,16 @@ public class Teleport implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (args.length == 0) {
+            sender.sendMessage("Please specify player you would like to teleport to!");
+            return true;
+        }
         if (sender instanceof Player) {
             Player p = (Player) sender;
+            if (p.getName().equals(args[0])) {
+                p.sendActionBar(Component.text("bruh"));
+                return true;
+            }
             otherPlayer = null;
             boolean found = false;
             ArrayList<Player> allPlayers = new ArrayList<>();
@@ -37,60 +56,75 @@ public class Teleport implements CommandExecutor {
                 }
             }
             if (!found) {
-                return false;
+                p.sendMessage("§cOther player not found");
+                return true;
             }
-            try {
-                BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
-                String line = bfr.readLine();
-                while (line != null) {
-                    if (line.substring(0, line.indexOf(",")).equals(p.getName())
-                            && line.substring(line.indexOf(",") + 2, line.lastIndexOf(",")).equals(args[0])
-                            && line.substring(line.lastIndexOf(",") + 2).equals("false")) {
-                                bfr.close();
-                        return false;
-                    } else {
+            File f = new File("plugins" + File.separator + "TeleportationCommands" + File.separator + "teleport" + File.separator + p.getName() + ".json");
+            TeleportRequests requests;
+            Gson gson = new Gson();
+            if (f.exists()) {
+                try {
+                    StringBuilder in = new StringBuilder();
+                    BufferedReader bfr = new BufferedReader(new FileReader(f));
+                    String line = bfr.readLine();
+                    while (line != null) {
+                        in.append(line);
                         line = bfr.readLine();
                     }
+                    bfr.close();
+                    requests = gson.fromJson(in.toString(), TeleportRequests.class);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    p.sendMessage("§cError sending teleport request");
+                    return true;
                 }
-                bfr.close();
-                BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat", true));
-                bfw.write(p.getName() + ", " + args[0] + ", false");
+            } else {
+                requests = new TeleportRequests();
+                try {
+                    f.createNewFile();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+            final Integer id = requests.addPlayer(otherPlayer);
+            try {
+                BufferedWriter bfw = new BufferedWriter(new FileWriter(f));
+                bfw.write(gson.toJson(requests));
                 bfw.flush();
                 bfw.close();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-            p.sendMessage("Sent " + args[0] + " a teleport request");
+            p.sendActionBar(Component.text("Sent " + args[0] + " a teleport request"));
             otherPlayer.sendMessage(p.getName() + " sent you a teleport request");
             p.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
-                        ArrayList<String> data = new ArrayList<>();
-                        String line = bfr.readLine();
-                        while (line != null) {
-                            data.add(line);
-                            if (line.substring(0, line.indexOf(",")).equals(p.getName())
-                                    && line.substring(line.indexOf(",") + 2, line.lastIndexOf(",")).equals(args[0])) {
-                                bfr.close();
-                                data.remove(data.size() - 1);
-                                BufferedWriter bfw = new BufferedWriter(new FileWriter("plugins" + File.separator + "TeleportationCommands" + File.separator + "activeTeleportations.dat"));
-                                String out = "";
-                                for (String s : data) {
-                                    out += s + "\n";
+                        if (f.exists()) {
+                            StringBuilder in = new StringBuilder();
+                            BufferedReader bfr = new BufferedReader(new FileReader(f));
+                            String line = bfr.readLine();
+                            while (line != null) {
+                                in.append(line);
+                                line = bfr.readLine();
+                            }
+                            bfr.close();
+                            TeleportRequests tr = gson.fromJson(in.toString(), TeleportRequests.class);
+                            if (tr.getRequest(id) != null) {
+                                p.sendActionBar(Component.text("Teleport request to " + otherPlayer.getName() + " timed out"));
+                                otherPlayer.sendActionBar(Component.text("Teleport request from " + otherPlayer.getName() + " timed out"));
+                                tr.removeRequest(id);
+                                if (!tr.isEmpty()) {
+                                    BufferedWriter bfw = new BufferedWriter(new FileWriter(f));
+                                    bfw.write(gson.toJson(tr));
+                                    bfw.flush();
+                                    bfw.close();
+                                } else {
+                                    Files.delete(Paths.get(f.getAbsolutePath()));
                                 }
-                                bfw.write(out);
-                                bfw.flush();
-                                bfw.close();
-                                if (line.substring(line.lastIndexOf(",") + 2).equals("false")) {
-                                    p.sendMessage("Teleport request to " + args[0] + " timed out");
-                                    otherPlayer.sendMessage("Teleport request from " + args[0] + " timed out");
-                                }
-                                break;
                             }
                         }
-                        bfr.close();
                     } catch (IOException ioe) {
                         ioe.printStackTrace();
                     }

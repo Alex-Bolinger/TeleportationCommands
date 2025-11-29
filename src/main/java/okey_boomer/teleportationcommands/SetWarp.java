@@ -23,6 +23,10 @@ public class SetWarp implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         try {
+            if (args.length == 0) {
+                sender.sendMessage("§cPlease specify warp name");
+                return true;
+            }
             BufferedReader bfr = new BufferedReader(new FileReader("plugins" + File.separator + "TeleportationCommands" + File.separator + "warps.dat"));
             String line = bfr.readLine();
             Player p = (Player) sender;
@@ -30,11 +34,10 @@ public class SetWarp implements CommandExecutor {
             for (int i = 1; i < args.length; i++) {
                 warpName += " " + args[i];
             }
-            warpName = warpName.toLowerCase();
             while (line != null) {
                 String otherWarp = line.substring(0, line.indexOf(","));
-                if (otherWarp.toLowerCase().equals(warpName)) {
-                    p.sendMessage("Warp name: " + warpName + " is already taken");
+                if (otherWarp.equals(warpName)) {
+                    p.sendMessage("§cWarp name: " + warpName + " is already taken");
                     bfr.close();
                     return true;
                 } else {
